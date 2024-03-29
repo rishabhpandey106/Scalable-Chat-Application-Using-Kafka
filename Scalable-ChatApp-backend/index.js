@@ -5,6 +5,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const GroupChatMessage = require("./dbSchema/GroupChatMessage");
 const OneOnOneChatMessage = require("./dbSchema/OneOnOneChatMessage");
+const RoomChatMessage = require("./dbSchema/RoomMessages");
 const { Kafka } = require('kafkajs');
 const fs = require('fs');
 
@@ -28,9 +29,9 @@ const kafka = new Kafka({
       ca: [fs.readFileSync("./ca.pem", "utf-8")],
   },
   sasl: {
-      username: "",
-      password: "",
-      mechanism: ""
+    username: "",
+    password: "",
+    mechanism: ""
   }
 });
 
@@ -47,7 +48,22 @@ await consumer.run({
         const parsedMessage = JSON.parse(value.toString());
         if (key) {
             const timestamp = parseInt(key.toString());
-            if (parsedMessage.receiverId) {
+            if(parsedMessage.room){
+                const roomMessage = new RoomChatMessage({
+                    room: parsedMessage.room,
+                    sender: parsedMessage.sender,
+                    content: parsedMessage.content,
+                    createdAt: new Date(timestamp),
+                });
+                console.log(parsedMessage);
+                try {
+                    await roomMessage.save();
+                    console.log("fetched from kafka");
+                } catch (error) {
+                    console.error('Error saving room message:', error.message);
+                }
+            }
+            else if (parsedMessage.receiverId) {
                 const oneOnOneMessage = new OneOnOneChatMessage({
                     senderId: parsedMessage.senderId,
                     receiverId: parsedMessage.receiverId,
@@ -98,7 +114,7 @@ runProducer().catch(console.error);
 
 
 
-mongoose.connect('mongodb://0.0.0.0:27017/scalablechat', {
+mongoose.connect('YOUR_MONGO_URL', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
@@ -141,6 +157,16 @@ io.on('connection', (socket) => {
         console.log(`Username set for ${socket.id}: ${username}`);
     });
 
+    socket.on("fetchMessages", async (room) => {
+        try {
+          const messages = await RoomChatMessage.find({ room }).sort({ createdAt: 1 }).exec();
+
+          socket.emit("fetchedMessages", messages);
+        } catch (err) {
+          console.error("Error fetching messages:", err);
+        }
+    });
+
     socket.on('message', async (data) => {
       const timestamp = new Date().getTime();
         const message = new GroupChatMessage({
@@ -149,6 +175,38 @@ io.on('connection', (socket) => {
         });
         await sendMessage(timestamp, message);
         io.emit('message', message);
+    });
+
+    socket.on("joinRoom", async ({ room, sender }) => {
+        socket.join(room);
+    });
+
+    socket.on("roommessage", async (data) => {
+        const { room, sender, content } = data;
+        console.log("server roommessage event on - ",room,sender,content)
+        const timestamp = new Date().getTime();
+
+        // const newMessage = new RoomChatMessage({ room, sender, content });
+        // try {
+        //     await newMessage.save();
+        // } catch (err) {
+        //     console.error("Error saving message:", err);
+        // }
+
+        const newMessage = new RoomChatMessage({
+            room: room,
+            sender: sender,
+            content: content
+        })
+
+        await sendMessage(timestamp , newMessage)
+
+        io.to(room).emit("roommessage", newMessage);
+        console.log("sended to roomsg event");
+    });
+    
+    socket.on("leaveRoom", (roomName) => {
+    socket.leave(roomName);
     });
 
     socket.on('privateMessage', async (data) => {

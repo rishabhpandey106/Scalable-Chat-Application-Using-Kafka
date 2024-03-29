@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainPanel from './Pages/MainPanel/MainPanel';
 import Login from './Pages/Login/Login';
+import Room from './Pages/Rooms/Rooms'
 
 function App() {
   const api = "http://localhost:4000";
@@ -21,6 +22,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} /> 
             <Route path="/mainpanel" element={<MainPanel />} />
+            <Route path="/rooms/" element={<Room />} />
           </Routes>
         </Router>
       </ChatContext.Provider>

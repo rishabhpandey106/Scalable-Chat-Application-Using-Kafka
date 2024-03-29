@@ -94,6 +94,10 @@ const MainPanel = () => {
     }
   };
 
+  const addRoom = () => {
+    window.location.href = "/rooms";
+  }
+
   return (
     <div className="mainpanel-container">
       <div className="chat-window">
@@ -112,6 +116,7 @@ const MainPanel = () => {
             
           ))}
             <button onClick={addChatUser}>Chat new User +</button>
+            <button onClick={addRoom}>Rooms</button>
         </div>
         <div className="msg-window">
           <div className="header">
