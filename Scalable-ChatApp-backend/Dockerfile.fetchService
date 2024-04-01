@@ -1,0 +1,11 @@
+FROM node
+
+WORKDIR /app
+
+COPY fetchService.js /app/fetchService.js
+COPY package.json /app/package.json
+COPY dbSchema/ /app/dbSchema/
+
+RUN npm install
+
+CMD ["node", "fetchService.js"]

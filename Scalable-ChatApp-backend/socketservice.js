@@ -30,7 +30,7 @@ const kafka = new Kafka({
     },
     sasl: {
         username: "",
-        password: ""
+        password: "",
         mechanism: "plain"
     }
   });
@@ -114,7 +114,7 @@ runProducer().catch(console.error);
 
 
 
-mongoose.connect('mongodb://0.0.0.0:27017/scalablechat', {
+mongoose.connect('mongodb+srv://', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {

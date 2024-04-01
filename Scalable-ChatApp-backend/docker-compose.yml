@@ -1,0 +1,15 @@
+services:
+  socketservice:
+    image: socketservice-image
+    ports:
+      - "4001:4001"
+
+  fetchService:
+    image: fetchservice-image
+    ports:
+      - "4002:4002"
+
+  apiGateway:
+    image: apigateway-image
+    ports:
+      - "4000:4000"

@@ -6,7 +6,7 @@ const OneOnOneChatMessage = require("./dbSchema/OneOnOneChatMessage");
 
 const app = express();
 app.use(cors());
-mongoose.connect('mongodb://0.0.0.0:27017/scalablechat', {
+mongoose.connect('mongodb+srv://', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {

@@ -1,0 +1,12 @@
+FROM node
+
+WORKDIR /app
+
+COPY socketservice.js /app/socketservice.js
+COPY package.json /app/package.json
+COPY ca.pem /app/ca.pem
+COPY dbSchema/ /app/dbSchema/
+
+RUN npm install
+
+CMD ["node", "socketservice.js"]

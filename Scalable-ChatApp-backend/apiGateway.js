@@ -8,11 +8,11 @@ const socketServicePort = 4001;
 const fetchServicePort = 4002; 
 
 app.get('/api/chat/:username', (req, res) => {
-    proxy.web(req, res, { target: `http://localhost:${fetchServicePort}` }); 
+    proxy.web(req, res, { target: `http://fetchService:${fetchServicePort}` }); 
 });
 
 app.use((req, res) => {
-    proxy.web(req, res, { target: `http://localhost:${socketServicePort}` });
+    proxy.web(req, res, { target: `http://socketservice:${socketServicePort}` });
 });
 
 const PORT = process.env.PORT || 4000;
